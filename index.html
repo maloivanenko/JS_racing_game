@@ -21,7 +21,18 @@
     Traffic('T1',300,0,0,5);
     Traffic('T2',160,0,0,10);
     Traffic('T3',230,0,0,7);
-    
+
+    function getDistanceBetweenEntity(entity1,entity2) {
+        var vx = entity1.x - entity2.x;
+        var vy = entity1.y - entity2.y;
+        return Math.sqrt(vx*vx+vy*vy);
+    }
+
+    function testCollisionEntity(entity1,entity2) {
+        var dist = getDistanceBetweenEntity(entity1,entity2);
+        return dist < 40;
+    }
+
     function Traffic(id,x,y,spdX,spdY) {
         var traffic = {
             x: x,
@@ -34,6 +45,8 @@
         trafficList[id] = traffic;
     }
 
+
+
     setInterval(update, 40);
 
     function updateEntity(something) {
@@ -43,11 +56,9 @@
 
 
         if (something.x < 0 || something.x > WIDTH) {
-            console.log(message);
             something.spdX = -something.spdX;
         }
         if (something.y < 0 || something.y > HEIGHT) {
-            console.log(message);
             something.spdY = -something.spdY;
         }
     }
@@ -55,11 +66,16 @@
 
     function update() {
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        updateEntity(player);
 
         for (var key in trafficList) {
             updateEntity(trafficList[key]);
+
+            var isColliding = testCollisionEntity(player, trafficList[key]);
+            if(isColliding) {
+                console.log('true');
+            }
         }
 
+        updateEntity(player);
     }
 </script>
