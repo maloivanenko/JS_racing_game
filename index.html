@@ -17,65 +17,70 @@
     };
 
     var trafficList = {};
-    
-    Traffic('T1',300,0,0,5);
-    Traffic('T2',160,0,0,10);
-    Traffic('T3',230,0,0,7);
 
-    function getDistanceBetweenEntity(entity1,entity2) {
+
+    getDistanceBetweenEntity = function (entity1, entity2) {
         var vx = entity1.x - entity2.x;
         var vy = entity1.y - entity2.y;
-        return Math.sqrt(vx*vx+vy*vy);
+        return Math.sqrt(vx * vx + vy * vy);
     }
 
-    function testCollisionEntity(entity1,entity2) {
-        var dist = getDistanceBetweenEntity(entity1,entity2);
+    testCollisionEntity = function (entity1, entity2) {
+        var dist = getDistanceBetweenEntity(entity1, entity2);
         return dist < 40;
     }
 
-    function Traffic(id,x,y,spdX,spdY) {
+    Traffic = function(id, x, y, spdX, spdY) {
         var traffic = {
             x: x,
             spdX: spdX,
             y: y,
             spdY: spdY,
             name: 'T',
-            id:id,
+            id: id,
         };
         trafficList[id] = traffic;
     }
 
+    updateEntity = function (arg) {
+        updateEntityPosition(arg);
+        drawEntity(arg);
+    }
 
-
-    setInterval(update, 40);
-
-    function updateEntity(something) {
-        something.x += something.spdX;
-        something.y += something.spdY;
-        ctx.fillText(something.name, something.x, something.y);
-
-
-        if (something.x < 0 || something.x > WIDTH) {
-            something.spdX = -something.spdX;
+    updateEntityPosition = function(arg){
+        arg.x += arg.spdX;
+        arg.y += arg.spdY;
+       
+        if (arg.x < 0 || arg.x > WIDTH) {
+            arg.spdX = -arg.spdX;
         }
-        if (something.y < 0 || something.y > HEIGHT) {
-            something.spdY = -something.spdY;
+        if (arg.y < 0 || arg.y > HEIGHT) {
+            arg.spdY = -arg.spdY;
         }
     }
 
-
-    function update() {
+    drawEntity = function(arg){
+         ctx.fillText(arg.name, arg.x, arg.y);
+    }
+    update = functione(){
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
         for (var key in trafficList) {
             updateEntity(trafficList[key]);
 
             var isColliding = testCollisionEntity(player, trafficList[key]);
-            if(isColliding) {
+            if (isColliding) {
                 console.log('true');
             }
         }
 
         updateEntity(player);
     }
+
+    Traffic('T1', 300, 0, 0, 5);
+    Traffic('T2', 160, 0, 0, 10);
+    Traffic('T3', 230, 0, 0, 7);
+
+    setInterval(update, 40);
+
 </script>
