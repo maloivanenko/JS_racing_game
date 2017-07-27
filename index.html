@@ -1,5 +1,5 @@
 <center>
-<canvas id="ctx" width="500" height="600" style="border:1px solid #000000;"></canvas>
+    <canvas id="ctx" width="500" height="600" style="border:1px solid #000000;"></canvas>
 </center>
 <script>
     var ctx = document.getElementById("ctx").getContext("2d");
@@ -8,6 +8,7 @@
     const HEIGHT = 600;
     const WIDTH = 500;
     var survivedTime = 0;
+    var randomAppearanceTimer = 0;
 
     var player = {
         x: 300,
@@ -15,14 +16,14 @@
         y: 470,
         spdY: 0,
         name: 'P',
-        width: 20,
-        height: 40,
+        width: 60,
+        height: 90,
         color: 'green',
         hp: 10,
-        pressingUp:false,
-        pressingDown:false,
-        pressingLeft:false,
-        pressingRight:false,
+        pressingUp: false,
+        pressingDown: false,
+        pressingLeft: false,
+        pressingRight: false,
     };
 
     var trafficList = {};
@@ -35,28 +36,28 @@
 
     testCollisionEntity = function (entity1, entity2) {
         var rect1 = {
-            x:entity1.x/2,
-            y:entity1.y/2,
-            width:10,
-            height:15,
+            x: entity1.x / 2,
+            y: entity1.y / 2,
+            width: 30,
+            height: 45,
         }
         var rect2 = {
-            x:entity2.x/2,
-            y:entity2.y/2,
-            width:10,
-            height:15,
+            x: entity2.x / 2,
+            y: entity2.y / 2,
+            width: 30,
+            height: 45,
         }
-        return testCollisionRectRect(rect1,rect2)
+        return testCollisionRectRect(rect1, rect2)
     }
 
-    drawEntity = function(arg){
+    drawEntity = function (arg) {
         ctx.save();
         ctx.fillStyle = arg.color;
-        ctx.fillRect(arg.x-arg.width/2,arg.y-arg.height/2,arg.width,arg.height);
+        ctx.fillRect(arg.x - arg.width / 2, arg.y - arg.height / 2, arg.width, arg.height);
         ctx.restore();
     }
 
-    Traffic = function(id, x, y, spdX, spdY, width, height) {
+    Traffic = function (id, x, y, spdX, spdY, width, height) {
         var traffic = {
             x: x,
             spdX: spdX,
@@ -76,43 +77,36 @@
         drawEntity(arg);
     }
 
-    updateEntityPosition = function(arg){
+    updateEntityPosition = function (arg) {
         arg.x += arg.spdX;
         arg.y += arg.spdY;
-       
-        // if (arg.x < 0 || arg.x > WIDTH) {
-        //     arg.spdX = -arg.spdX;
-        // }
-        // if (arg.y < 0 || arg.y > HEIGHT) {
-        //     arg.spdY = -arg.spdY;
-        // }
 
-        if(arg.y < 0 || arg.y > HEIGHT){
+        if (arg.y < 0 || arg.y > HEIGHT) {
             arg = null;
         }
     }
 
-    testCollisionRectRect = function(rect1,rect2){
-        return rect1.x <= rect2.x+rect2.width
-        && rect2.x <= rect1.x+rect1.width
-        && rect1.y <= rect2.y+rect2.height
-        && rect2.y <= rect1.y+rect1.height;
+    testCollisionRectRect = function (rect1, rect2) {
+        return rect1.x <= rect2.x + rect2.width &&
+            rect2.x <= rect1.x + rect1.width &&
+            rect1.y <= rect2.y + rect2.height &&
+            rect2.y <= rect1.y + rect1.height;
     }
 
-    drawRoad = function(arg){
-
+    drawRoad = function (arg) {
+     //wip
     }
 
-    drawEntity = function(arg){
-         ctx.fillStyle=arg.color;
-         ctx.fillRect(arg.x, arg.y, arg.width, arg.height);
+    drawEntity = function (arg) {
+        ctx.fillStyle = arg.color;
+        ctx.fillRect(arg.x, arg.y, arg.width, arg.height);
     }
-    update = function(){
+    update = function () {
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        ctx.fillStyle='black';
-        ctx.fillRect(WIDTH/2-WIDTH/4,0,WIDTH/2,HEIGHT);
-        ctx.fillStyle='white';
-        ctx.fillRect(WIDTH/2+2,0,2,HEIGHT);
+        ctx.fillStyle = 'black';
+        ctx.fillRect(WIDTH / 2 - WIDTH / 4, 0, WIDTH / 2, HEIGHT);
+        ctx.fillStyle = 'white';
+        ctx.fillRect(WIDTH / 2 + 2, 0, 2, HEIGHT);
         survivedTime++;
 
         for (var key in trafficList) {
@@ -121,12 +115,13 @@
             var isCollidingPlayerTraffic = testCollisionEntity(player, trafficList[key]);
             if (isCollidingPlayerTraffic) {
                 player.hp = player.hp - 1;
-               
-                currentTraffic = trafficList[key];
-                currentTraffic.height = 0;
-                currentTraffic.width = 0;
-                if(player.hp <= 0){
-                    console.log('you lost! your score: '+survivedTime+' points');
+                    delete trafficList[key]
+
+                // currentTraffic = trafficList[key];
+                // currentTraffic.height = 0;
+                // currentTraffic.width = 0;
+                if (player.hp <= 0) {
+                    console.log('you lost! your score: ' + survivedTime + ' points');
                     player.hp = 10;
                     survivedTime = 0;
                 }
@@ -136,74 +131,77 @@
         updatePlayerPosition();
         drawEntity(player);
         ctx.fillStyle = 'blue';
-        ctx.fillText(player.hp + ' hp',0,30);
-        ctx.fillText('score: '+ survivedTime,WIDTH-150,30);
+        ctx.fillText(player.hp + ' hp', 0, 30);
+        ctx.fillText('score: ' + survivedTime, WIDTH - 150, 30);
+        var randomAppearanceTimer = Math.random();
+        if (randomAppearanceTimer < 0.01) {
+            // setInterval(randomCounterTrafficGeneration,1000);
+            randomCounterTrafficGeneration();
+            // randomCounterTrafficGeneration = null;
+        } else if (randomAppearanceTimer > 0.99) {
+            randomFollowingTrafficGeneration()
+        }
     }
 
-    document.onkeydown = function(event){
-        if(event.keyCode === 39)        //d
-                player.pressingRight = true;
-        else if(event.keyCode === 40)   //s
-                player.pressingDown = true;
-        else if(event.keyCode === 37) //a
-                player.pressingLeft = true;
-        else if(event.keyCode === 38) // w
-                player.pressingUp = true;
-    }
- 
-    document.onkeyup = function(event){
-        if(event.keyCode === 39)        //d
-                player.pressingRight = false;
-        else if(event.keyCode === 40)   //s
-                player.pressingDown = false;
-        else if(event.keyCode === 37) //a
-                player.pressingLeft = false;
-        else if(event.keyCode === 38) // w
-                player.pressingUp = false;
+    document.onkeydown = function (event) {
+        if (event.keyCode === 39) //d
+            player.pressingRight = true;
+        else if (event.keyCode === 40) //s
+            player.pressingDown = true;
+        else if (event.keyCode === 37) //a
+            player.pressingLeft = true;
+        else if (event.keyCode === 38) // w
+            player.pressingUp = true;
     }
 
-    updatePlayerPosition = function(){
-        if(player.pressingUp)
-                player.y -= 10;
-        if(player.pressingRight)
-                player.x += 10;
-        if(player.pressingLeft)
-                player.x -= 10;
-        if(player.pressingDown)
-                player.y += 10;
+    document.onkeyup = function (event) {
+        if (event.keyCode === 39) //d
+            player.pressingRight = false;
+        else if (event.keyCode === 40) //s
+            player.pressingDown = false;
+        else if (event.keyCode === 37) //a
+            player.pressingLeft = false;
+        else if (event.keyCode === 38) // w
+            player.pressingUp = false;
+    }
+
+    updatePlayerPosition = function () {
+        if (player.pressingUp)
+            player.y -= 10;
+        if (player.pressingRight)
+            player.x += 20;
+        if (player.pressingLeft)
+            player.x -= 20;
+        if (player.pressingDown)
+            player.y += 10;
     }
 
     //UNOPTIMIZED YET!!
-    randomCounterTrafficGeneration = function(){
+    randomCounterTrafficGeneration = function () {
         var id = Math.random();
-        var x = Math.random()*WIDTH;
+        var x = WIDTH / 2 - 70 - 20 * Math.random();
         var y = 0; //temporary
-        var width = 20;
-        var height = 40;
-        var spdY = 5 + Math.random()*5;
+        var width = 60;
+        var height = 90;
+        var spdY = 15 //+ Math.random()*10;
         var spdX = 0; //dont turn to sides 
-        Traffic(id,x,y,spdX,spdY,width,height);
+        Traffic(id, x, y, spdX, spdY, width, height);
     }
 
-    randomFollowingTrafficGeneration = function(){
+    randomFollowingTrafficGeneration = function () {
         var id = Math.random();
-        var x = Math.random()*WIDTH;
-        var y = HEIGHT; //temporary
-        var width = 20;
-        var height = 40;
-        var spdY = -(5 + Math.random()*5);
+        var x = WIDTH / 2 + 30 + 20 * Math.random();
+        var y = 0; //temporary
+        var width = 60;
+        var height = 90;
+        var spdY = 5 //+ Math.random()*5;
         var spdX = 0; //dont turn to sides 
-        Traffic(id,x,y,spdX,spdY,width,height);
+        Traffic(id, x, y, spdX, spdY, width, height);
     }
 
 
-    setInterval(randomCounterTrafficGeneration, 1000);
-    setInterval(randomFollowingTrafficGeneration, 1000);
+    // setInterval(randomCounterTrafficGeneration, randomAppearanceTimer);
+    // setInterval(randomFollowingTrafficGeneration, randomAppearanceTimer);
 
-    // Traffic('T1', 300, HEIGHT, 0, -5, 20, 40);
-    // Traffic('T2', 160, 0, 0, 10, 20, 40);
-    // Traffic('T3', 230, 0, 0, 7, 20, 40);
-
-    setInterval(update, 40);
-
+    setInterval(update, 20);
 </script>
