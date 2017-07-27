@@ -4,9 +4,10 @@
     var ctx = document.getElementById("ctx").getContext("2d");
     ctx.font = '30px Arial';
 
-    var HEIGHT = 500;
-    var WIDTH = 500;
-    var message = "1"
+    const HEIGHT = 500;
+    const WIDTH = 500;
+    var startTimer = Date.now();
+    var survivedTime = 0;
 
     var player = {
         x: 50,
@@ -71,6 +72,7 @@
     }
     update = function(){
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        survivedTime++;
 
         for (var key in trafficList) {
             updateEntity(trafficList[key]);
@@ -79,13 +81,17 @@
             if (isColliding) {
                 player.hp = player.hp - 1;
                 if(player.hp <= 0){
-                    console.log('you lost!');
+                    console.log('you lost! your score: '+survivedTime+' points');
+                    player.hp = 10;
+                    survivedTime = 0;
                 }
             }
         }
 
         updateEntity(player);
+        ctx.fillStyle = 'blue';
         ctx.fillText(player.hp + ' hp',0,30);
+        ctx.fillText('score: '+ survivedTime,WIDTH-150,30);
     }
 
     Traffic('T1', 300, 0, 0, 5, 20, 40);
