@@ -14,6 +14,9 @@
         y: 40,
         spdY: 5,
         name: 'P',
+        sizex: 20,
+        sizey: 40,
+        color: 'green',
     };
 
     var trafficList = {};
@@ -29,7 +32,7 @@
         return dist < 40;
     }
 
-    Traffic = function(id, x, y, spdX, spdY) {
+    Traffic = function(id, x, y, spdX, spdY, sizex, sizey) {
         var traffic = {
             x: x,
             spdX: spdX,
@@ -37,6 +40,9 @@
             spdY: spdY,
             name: 'T',
             id: id,
+            sizex: sizex,
+            sizey: sizey,
+            color: 'red',
         };
         trafficList[id] = traffic;
     }
@@ -59,7 +65,8 @@
     }
 
     drawEntity = function(arg){
-         ctx.fillText(arg.name, arg.x, arg.y);
+         ctx.fillStyle=arg.color;
+         ctx.fillRect(arg.x, arg.y, arg.sizex, arg.sizey);
     }
     update = function(){
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
@@ -76,9 +83,9 @@
         updateEntity(player);
     }
 
-    Traffic('T1', 300, 0, 0, 5);
-    Traffic('T2', 160, 0, 0, 10);
-    Traffic('T3', 230, 0, 0, 7);
+    Traffic('T1', 300, 0, 0, 5, 20, 40);
+    Traffic('T2', 160, 0, 0, 10, 20, 40);
+    Traffic('T3', 230, 0, 0, 7, 20, 40);
 
     setInterval(update, 40);
 
