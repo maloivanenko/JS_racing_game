@@ -17,6 +17,7 @@
         sizex: 20,
         sizey: 40,
         color: 'green',
+        hp: 10,
     };
 
     var trafficList = {};
@@ -76,11 +77,15 @@
 
             var isColliding = testCollisionEntity(player, trafficList[key]);
             if (isColliding) {
-                console.log('true');
+                player.hp = player.hp - 1;
+                if(player.hp <= 0){
+                    console.log('you lost!');
+                }
             }
         }
 
         updateEntity(player);
+        ctx.fillText(player.hp + ' hp',0,30);
     }
 
     Traffic('T1', 300, 0, 0, 5, 20, 40);
