@@ -1,17 +1,18 @@
-<canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>
-
+<center>
+<canvas id="ctx" width="500" height="600" style="border:1px solid #000000;"></canvas>
+</center>
 <script>
     var ctx = document.getElementById("ctx").getContext("2d");
     ctx.font = '30px Arial';
 
-    const HEIGHT = 500;
+    const HEIGHT = 600;
     const WIDTH = 500;
     var survivedTime = 0;
 
     var player = {
-        x: WIDTH/2,
+        x: 300,
         spdX: 0,
-        y: HEIGHT/2,
+        y: 470,
         spdY: 0,
         name: 'P',
         width: 20,
@@ -36,14 +37,14 @@
         var rect1 = {
             x:entity1.x/2,
             y:entity1.y/2,
-            width:20,
-            height:20,
+            width:10,
+            height:15,
         }
         var rect2 = {
             x:entity2.x/2,
             y:entity2.y/2,
-            width:30,
-            height:30,
+            width:10,
+            height:15,
         }
         return testCollisionRectRect(rect1,rect2)
     }
@@ -79,11 +80,15 @@
         arg.x += arg.spdX;
         arg.y += arg.spdY;
        
-        if (arg.x < 0 || arg.x > WIDTH) {
-            arg.spdX = -arg.spdX;
-        }
-        if (arg.y < 0 || arg.y > HEIGHT) {
-            arg.spdY = -arg.spdY;
+        // if (arg.x < 0 || arg.x > WIDTH) {
+        //     arg.spdX = -arg.spdX;
+        // }
+        // if (arg.y < 0 || arg.y > HEIGHT) {
+        //     arg.spdY = -arg.spdY;
+        // }
+
+        if(arg.y < 0 || arg.y > HEIGHT){
+            arg = null;
         }
     }
 
@@ -94,20 +99,32 @@
         && rect2.y <= rect1.y+rect1.height;
     }
 
+    drawRoad = function(arg){
+
+    }
+
     drawEntity = function(arg){
          ctx.fillStyle=arg.color;
          ctx.fillRect(arg.x, arg.y, arg.width, arg.height);
     }
     update = function(){
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        ctx.fillStyle='black';
+        ctx.fillRect(WIDTH/2-WIDTH/4,0,WIDTH/2,HEIGHT);
+        ctx.fillStyle='white';
+        ctx.fillRect(WIDTH/2+2,0,2,HEIGHT);
         survivedTime++;
 
         for (var key in trafficList) {
             updateEntity(trafficList[key]);
 
-            var isColliding = testCollisionEntity(player, trafficList[key]);
-            if (isColliding) {
+            var isCollidingPlayerTraffic = testCollisionEntity(player, trafficList[key]);
+            if (isCollidingPlayerTraffic) {
                 player.hp = player.hp - 1;
+               
+                currentTraffic = trafficList[key];
+                currentTraffic.height = 0;
+                currentTraffic.width = 0;
                 if(player.hp <= 0){
                     console.log('you lost! your score: '+survivedTime+' points');
                     player.hp = 10;
@@ -156,15 +173,36 @@
                 player.y += 10;
     }
 
-    randomTrafficGeneration = function(){
-        
+    //UNOPTIMIZED YET!!
+    randomCounterTrafficGeneration = function(){
+        var id = Math.random();
+        var x = Math.random()*WIDTH;
+        var y = 0; //temporary
+        var width = 20;
+        var height = 40;
+        var spdY = 5 + Math.random()*5;
+        var spdX = 0; //dont turn to sides 
+        Traffic(id,x,y,spdX,spdY,width,height);
+    }
+
+    randomFollowingTrafficGeneration = function(){
+        var id = Math.random();
+        var x = Math.random()*WIDTH;
+        var y = HEIGHT; //temporary
+        var width = 20;
+        var height = 40;
+        var spdY = -(5 + Math.random()*5);
+        var spdX = 0; //dont turn to sides 
+        Traffic(id,x,y,spdX,spdY,width,height);
     }
 
 
+    setInterval(randomCounterTrafficGeneration, 1000);
+    setInterval(randomFollowingTrafficGeneration, 1000);
 
-    Traffic('T1', 300, 0, 0, 5, 20, 40);
-    Traffic('T2', 160, 0, 0, 10, 20, 40);
-    Traffic('T3', 230, 0, 0, 7, 20, 40);
+    // Traffic('T1', 300, HEIGHT, 0, -5, 20, 40);
+    // Traffic('T2', 160, 0, 0, 10, 20, 40);
+    // Traffic('T3', 230, 0, 0, 7, 20, 40);
 
     setInterval(update, 40);
 
