@@ -8,7 +8,7 @@
 
 <script>
     var ctx = document.getElementById("ctx").getContext("2d");
-    ctx.font = '30px Arial';
+    ctx.font = '20px Arial';
 
     const HEIGHT = 600;
     const WIDTH = 500;
@@ -18,7 +18,7 @@
 
     var Map = {}
     Map.roadImg = new Image();
-    Map.roadImg.src = 'img/road1.jpg';
+    Map.roadImg.src = 'img/road2.jpg';
     Map.grass = new Image();
     Map.grass.src = 'img/grass.jpg';
 
@@ -128,7 +128,25 @@
         // var roadImg = document.getElementById('road')
         // ctx.drawImage(roadImg, WIDTH/2 - WIDTH/4,0 , WIDTH/2, HEIGHT);
         ctx.drawImage(Map.grass, 0, 0, WIDTH, HEIGHT);
-        ctx.drawImage(Map.roadImg, WIDTH/2 - WIDTH/4,0 , WIDTH/2, HEIGHT);
+
+        ctx.drawImage(
+        Map.roadImg,      //src
+
+        0,    //координаты верхнего левого угла слайса относительно изображения;
+        0,                    // -/-/-
+
+        900,             // размеры слайса
+        HEIGHT,            // -/-/-
+
+        WIDTH/2 - WIDTH/4,                 // координаты верхнего левого угла обрезанного изображения;
+        0,                  // -/-/-
+
+        WIDTH/2,            // размеры обрезанного изображения на холсте.
+        HEIGHT,              // -/-/-
+
+
+        );
+
         ctx.fillStyle = 'white';
         // ctx.fillRect(WIDTH / 2 + 2, 0, 2, HEIGHT);
         survivedTime++;
@@ -156,7 +174,7 @@
         drawEntity(player);
         ctx.fillStyle = 'blue';
         ctx.fillText(player.hp + ' hp', 0, 30);
-        ctx.fillText('score: ' + survivedTime, WIDTH - 150, 30);
+        ctx.fillText('score: ' + survivedTime, WIDTH - 100, 30);
         var randomAppearanceTimer = Math.random();
         if (randomAppearanceTimer < 0.01) {
             // setInterval(randomCounterTrafficGeneration,1000);
