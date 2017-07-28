@@ -1,6 +1,11 @@
 <center>
     <canvas id="ctx" width="500" height="600" style="border:1px solid #000000;"></canvas>
 </center>
+    
+<style>
+
+</style>
+
 <script>
     var ctx = document.getElementById("ctx").getContext("2d");
     ctx.font = '30px Arial';
@@ -10,15 +15,34 @@
     var survivedTime = 0;
     var randomAppearanceTimer = 0;
 
+
+    var Map = {}
+    Map.roadImg = new Image();
+    Map.roadImg.src = 'img/road1.jpg';
+    Map.grass = new Image();
+    Map.grass.src = 'img/grass.jpg';
+
+    var ImgPlayer = {}
+    ImgPlayer.auto = new Image();
+    ImgPlayer.auto.src = 'img/playerAuto.png';
+
+    var ImgTraffic = {}
+    ImgTraffic.counter = new Image();
+    ImgTraffic.counter.src = 'img/counterAuto.png';
+
+    ImgTraffic.follow = new Image();
+    ImgTraffic.follow.src = 'img/followAuto.png';
+
     var player = {
         x: 300,
         spdX: 0,
         y: 470,
         spdY: 0,
         name: 'P',
-        width: 60,
-        height: 90,
+        width: ImgPlayer.auto.width,
+        height: ImgPlayer.auto.height,
         color: 'green',
+        image: ImgPlayer.auto,
         hp: 10,
         pressingUp: false,
         pressingDown: false,
@@ -53,11 +77,12 @@
     drawEntity = function (arg) {
         ctx.save();
         ctx.fillStyle = arg.color;
-        ctx.fillRect(arg.x - arg.width / 2, arg.y - arg.height / 2, arg.width, arg.height);
+        // ctx.fillRect(arg.x - arg.width / 2, arg.y - arg.height / 2, arg.width, arg.height);
+        ctx.drawImage(arg.image,arg.x,arg.y);
         ctx.restore();
     }
 
-    Traffic = function (id, x, y, spdX, spdY, width, height) {
+    Traffic = function (id, x, y, spdX, spdY, width, height, image) {
         var traffic = {
             x: x,
             spdX: spdX,
@@ -68,6 +93,7 @@
             width: width,
             height: height,
             color: 'red',
+            image: image,
         };
         trafficList[id] = traffic;
     }
@@ -93,20 +119,18 @@
             rect2.y <= rect1.y + rect1.height;
     }
 
-    drawRoad = function (arg) {
-     //wip
-    }
-
-    drawEntity = function (arg) {
-        ctx.fillStyle = arg.color;
-        ctx.fillRect(arg.x, arg.y, arg.width, arg.height);
-    }
     update = function () {
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
+       
+        //drawing gaming map temporary
         ctx.fillStyle = 'black';
-        ctx.fillRect(WIDTH / 2 - WIDTH / 4, 0, WIDTH / 2, HEIGHT);
+        // ctx.fillRect(WIDTH / 2 - WIDTH / 4, 0, WIDTH / 2, HEIGHT);
+        // var roadImg = document.getElementById('road')
+        // ctx.drawImage(roadImg, WIDTH/2 - WIDTH/4,0 , WIDTH/2, HEIGHT);
+        ctx.drawImage(Map.grass, 0, 0, WIDTH, HEIGHT);
+        ctx.drawImage(Map.roadImg, WIDTH/2 - WIDTH/4,0 , WIDTH/2, HEIGHT);
         ctx.fillStyle = 'white';
-        ctx.fillRect(WIDTH / 2 + 2, 0, 2, HEIGHT);
+        // ctx.fillRect(WIDTH / 2 + 2, 0, 2, HEIGHT);
         survivedTime++;
 
         for (var key in trafficList) {
@@ -183,9 +207,10 @@
         var y = 0; //temporary
         var width = 60;
         var height = 90;
+        var image = ImgTraffic.counter;
         var spdY = 15 //+ Math.random()*10;
         var spdX = 0; //dont turn to sides 
-        Traffic(id, x, y, spdX, spdY, width, height);
+        Traffic(id, x, y, spdX, spdY, width, height, image);
     }
 
     randomFollowingTrafficGeneration = function () {
@@ -194,9 +219,10 @@
         var y = 0; //temporary
         var width = 60;
         var height = 90;
+        var image = ImgTraffic.follow;
         var spdY = 5 //+ Math.random()*5;
         var spdX = 0; //dont turn to sides 
-        Traffic(id, x, y, spdX, spdY, width, height);
+        Traffic(id, x, y, spdX, spdY, width, height, image);
     }
 
 
@@ -204,4 +230,5 @@
     // setInterval(randomFollowingTrafficGeneration, randomAppearanceTimer);
 
     setInterval(update, 20);
+
 </script>
