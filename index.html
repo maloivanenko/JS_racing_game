@@ -1,9 +1,17 @@
+<span class="hp">Car durability:</span>
+<progress id="health" value="5" max="5"></progress>
+<span id="timer" class="score">Score: </span>
 <center>
     <canvas id="ctx" width="500" height="600" style="border:1px solid #000000;">
     </canvas>
 </center>
     
 <style>
+    body {
+        background: black;
+        margin: 0;
+        padding: 0;
+    }
     #ctx{
         background-image: url('img/road_with_grass2.jpg');
         background-repeat: repeat-y;
@@ -11,13 +19,30 @@
         position:initial;
         background-position-y: 0;
     }
+    progress{
+        position: absolute;
+        margin-top: 25px;
+        margin-left: 10px;
+        background-color: #eee;
+        border-radius: 2px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+    }
+    .hp, .score {
+        position: absolute;
+        margin-top: 5px;
+        margin-left: 15px;
+        color: white;
+    }
+    .score{ 
+        margin-top: 45px;
+    }
 </style>
 
 <!-- 
 to do list: 
     -pause when user change brows tab
-    -upgrades, hp, speed(steering)
-    -random traffic car model(car/truck, color, speed)
+    -upgrades, hp bar, speed(steering)
+    -random traffic car model(car/truck, color, speed)          /+/
     -adding road reconstruction work or bad road segments
     -engrain pause option, pause when onfocus window
     -implementing physics 
@@ -28,6 +53,7 @@ to do list:
 <script>
     var ctx = document.getElementById("ctx").getContext("2d");
     ctx.font = '20px Arial';
+    var started = false;
 
     const HEIGHT = 600;
     const WIDTH = 500;
@@ -49,15 +75,7 @@ to do list:
         ImgPlayer.upgrade = new Image();
         ImgPlayer.upgrade.src = 'img/upgrade.png';
 
-    // var ImgTraffic = {}
-    //     ImgTraffic.counter = new Image();
-    //     ImgTraffic.counter.src = 'img/counterAuto.png';
-
-    //     ImgTraffic.follow = new Image();
-    //     ImgTraffic.follow.src = 'img/followAuto.png';
-
-    //     ImgTraffic.explosion = new Image();
-    //     ImgTraffic.explosion.src = 'img/explosion.jpg';
+    
     var ImgTraffic = {}
         ImgTraffic.models = new Image();
         ImgTraffic.models.src = 'img/autos.png'
@@ -73,13 +91,14 @@ to do list:
         height: ImgPlayer.auto.height,
         type: 'player',
         model: 'default',
-        hp: 10,
+        hp: 5,
         deg: 10,
         pressingUp: false,
         pressingDown: false,
         pressingLeft: false,
         pressingRight: false,
     };
+    let health = document.getElementById("health");
 
     var trafficList = {};
     var repairList = {};
@@ -202,6 +221,16 @@ to do list:
             rect2.y <= rect1.y + rect1.height;
     }
 
+    // togglePause = function(){
+    //     if (!started){
+    //     started = true;
+    // } else if (started){
+    //    clearInterval(update)
+    //    started = false;
+    // }
+    // }
+
+    
     update = function () {
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
         survivedTime++;
@@ -221,6 +250,7 @@ to do list:
            
                 if (isCollidingPlayerTraffic) {
                     player.hp = player.hp - 1;
+                    health.value -= 1;
                     var currentKey1 = key;
 
                     player.x = player.x + _.random(-15,15)*Math.random();
@@ -236,7 +266,8 @@ to do list:
 
                 if (player.hp <= 0) {
                     console.log('you lost! your score: ' + survivedTime + ' points');
-                    player.hp = 10;
+                    player.hp = 5;
+                    health.value = 5;
                     survivedTime = 0;
                     }
                 }
@@ -246,38 +277,36 @@ to do list:
                 // }
         }
 
-        if(player.x >= 350){
+        if(player.x > 350){
             player.x = 350;
-        } else if(player.x <= 100){
+        } else if(player.x < 100){
             player.x = 100;
-        } else if(player.y >= HEIGHT-90){
+        } else if(player.y > HEIGHT-90){
             player.y = HEIGHT-90;
         } else if(player.y <= 0){
             player.y = 0;
         }
         updatePlayerPosition();
         drawEntity(player);
-        ctx.fillStyle = 'blue';
-        ctx.fillText(player.hp + ' hp', 0, 30);
-        ctx.fillText('score: ' + survivedTime, WIDTH - 100, 30);
+        document.getElementById('timer').innerText = 'Score: '+ survivedTime;
     }
-
+    
     movingBackground = function(){
         document.getElementById('ctx').style.backgroundPositionY = 8*survivedTime+'px';
     }
     setInterval(movingBackground,5);
 
-    counterTimer = setTimeout(function timerForCounterTraffic() {
-        randomCounterTrafficGeneration();
-        var timer = 200+Math.random()*1000
-        counterTimer = setTimeout(timerForCounterTraffic, timer);
-    }, 1000);
+    // counterTimer = setTimeout(function timerForCounterTraffic() {
+    //     randomCounterTrafficGeneration();
+    //     var timer = 200+Math.random()*1000
+    //     counterTimer = setTimeout(timerForCounterTraffic, timer);
+    // }, 1000);
 
-    followTimer = setTimeout(function timerForFollowTraffic() {
-        randomFollowingTrafficGeneration();
-        var timer = 1500+Math.random()*2000
-        followTimer = setTimeout(timerForFollowTraffic, timer);
-    }, 1000);
+    // followTimer = setTimeout(function timerForFollowTraffic() {
+    //     randomFollowingTrafficGeneration();
+    //     var timer = 1500+Math.random()*2000
+    //     followTimer = setTimeout(timerForFollowTraffic, timer);
+    // }, 1000);
 
     document.onkeydown = function (event) {
         if (event.keyCode === 39) //d
@@ -288,8 +317,11 @@ to do list:
             player.pressingLeft = true;
         else if (event.keyCode === 38) // w
             player.pressingUp = true;
+        else if (event.keyCode === 80)  {
+                
+        }
     }
-
+    
     document.onkeyup = function (event) {
         if (event.keyCode === 39) //d
             player.pressingRight = false;
@@ -313,6 +345,56 @@ to do list:
         if (player.pressingDown)
             player.y += 5;
     }
+
+    // const startGame = setInterval(update,20);
+    startCounterTimer = function(){
+        for (var key in trafficList) {
+            delete trafficList[key];
+        }
+            counterTimer = setTimeout(function timerForCounterTraffic() {
+            randomCounterTrafficGeneration();
+            var timer = 200+Math.random()*1000
+            return counterTimer = setTimeout(timerForCounterTraffic, timer);
+            }, 1000);
+
+    startFollowTimer = function(){
+        for (var key in trafficList) {
+            delete trafficList[key];
+        }
+            followTimer = setTimeout(function timerForFollowTraffic() {
+            randomFollowingTrafficGeneration();
+            var timer = 1500+Math.random()*2000
+            return followTimer = setTimeout(timerForFollowTraffic, timer);
+            }, 1000);
+    }
+
+    }
+    start = function(){
+            startCounterTimer();
+            startFollowTimer();
+            for (var key in trafficList) {
+                delete trafficList[key];
+            }
+            return startGame = setInterval(update,20);
+            
+    }
+    
+
+    stop = function(){
+        for (var key in trafficList) {
+            delete trafficList[key];
+            }
+        clearInterval(startGame);
+        clearTimeout(counterTimer);
+        clearTimeout(followTimer);
+        // clearTimeout(followTimer);
+        
+    }
+
+   
+
+
+    
 
     //UNOPTIMIZED YET!!
     randomCounterTrafficGeneration = function () {
@@ -358,7 +440,5 @@ to do list:
         var sliceY = 85;
         Traffic(id, x, y, spdX, spdY, width, height, type, model, color, image, sliceX, sliceY);
     }
-
-    setInterval(update, 20);
 
 </script>
