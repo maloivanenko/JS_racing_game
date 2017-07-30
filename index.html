@@ -15,11 +15,13 @@
 
 <!-- 
 to do list: 
+    -pause when user change brows tab
     -upgrades, hp, speed(steering)
     -random traffic car model(car/truck, color, speed)
     -adding road reconstruction work or bad road segments
     -engrain pause option, pause when onfocus window
-    -implementing physics  
+    -implementing physics 
+    -adding sounds 
 -->
 
 <script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
@@ -32,24 +34,30 @@ to do list:
     var survivedTime = 0;
 
     var Map = {}
-    Map.roadImg = new Image();
-    Map.roadImg.src = 'img/road2.jpg';
-    Map.grass = new Image();
-    Map.grass.src = 'img/grass.jpg';
+        Map.roadImg = new Image();
+        Map.roadImg.src = 'img/road2.jpg';
+        Map.grass = new Image();
+        Map.grass.src = 'img/grass.jpg';
 
     var ImgPlayer = {}
-    ImgPlayer.auto = new Image();
-    ImgPlayer.auto.src = 'img/playerAuto.png';
+        ImgPlayer.auto = new Image();
+        ImgPlayer.auto.src = 'img/playerAuto.png';
+
+        ImgPlayer.repair = new Image();
+        ImgPlayer.repair.src = 'img/repair.png';
+
+        ImgPlayer.upgrade = new Image();
+        ImgPlayer.upgrade.src = 'img/upgrade.png';
 
     var ImgTraffic = {}
-    ImgTraffic.counter = new Image();
-    ImgTraffic.counter.src = 'img/counterAuto.png';
+        ImgTraffic.counter = new Image();
+        ImgTraffic.counter.src = 'img/counterAuto.png';
 
-    ImgTraffic.follow = new Image();
-    ImgTraffic.follow.src = 'img/followAuto.png';
+        ImgTraffic.follow = new Image();
+        ImgTraffic.follow.src = 'img/followAuto.png';
 
-    ImgTraffic.explosion = new Image();
-    ImgTraffic.explosion.src = 'img/explosion.jpg'
+        ImgTraffic.explosion = new Image();
+        ImgTraffic.explosion.src = 'img/explosion.jpg';
 
     var player = {
         x: 300,
@@ -69,6 +77,8 @@ to do list:
     };
 
     var trafficList = {};
+    var repairList = {};
+    var upgradeList = {};
 
     getDistanceBetweenEntity = function (entity1, entity2) {
         var vx = entity1.x - entity2.x;
@@ -94,8 +104,6 @@ to do list:
 
     drawEntity = function (arg) {
         ctx.save();
-        ctx.fillStyle = arg.color;
-        // ctx.fillRect(arg.x - arg.width / 2, arg.y - arg.height / 2, arg.width, arg.height);
         ctx.drawImage(arg.image,arg.x,arg.y);
         ctx.restore();
     }
@@ -114,6 +122,32 @@ to do list:
             image: image,
         };
         trafficList[id] = traffic;
+    }
+
+    Repair = function(id,x,y,spdX,spdY,width,height){
+        var rep = {
+            id:id,
+            x:x,
+            y:y,
+            spdX:spdX,
+            spdY:spdY,
+            width:width,
+            height:height,
+        };
+        repairList[id] = rep;
+    }
+
+    Upgrade = function(id,x,y,spdX,spdY,width,height){
+        var up = {
+            id:id,
+            x:x,
+            y:y,
+            spdX:spdX,
+            spdY:spdY,
+            width:width,
+            height:height,
+        };
+        upgradeList[id] = up;
     }
 
     updateEntity = function (arg) {
@@ -143,33 +177,52 @@ to do list:
 
         for (var key in trafficList) {
             updateEntity(trafficList[key]);
+            var currentKey = key;
+            trafficList[currentKey].spdX += _.random(-0.01,0.01);
+                if(trafficList[currentKey].x >= 350){
+                    trafficList[currentKey].x = 350;
+                } else if (trafficList[currentKey].x <= 100){
+                    trafficList[currentKey].x = 100;
+                }
 
             var isCollidingPlayerTraffic = testCollisionEntity(player, trafficList[key]);
-            if (isCollidingPlayerTraffic) {
-                player.hp = player.hp - 1;
-                    var currentKey = key;
+            // var isCollidingTrafficTraffic = testCollisionEntity(trafficList[key]);
+           
+                if (isCollidingPlayerTraffic) {
+                    player.hp = player.hp - 1;
+                    var currentKey1 = key;
+
                     player.x = player.x + _.random(-15,15)*Math.random();
                     player.y = player.y + _.random(-40,50); 
                     trafficList[currentKey].spdX += _.random(-5,5); 
-                    trafficList[currentKey].spdY += _.random(-10,-5) 
+                    trafficList[currentKey].spdY += _.random(-10,-5);
+                         
 
                     setInterval(function(){                                            
-                    delete trafficList[currentKey];
+                    delete trafficList[currentKey1];
                     },
-                    150);                    
+                    120);                    
 
                 if (player.hp <= 0) {
                     console.log('you lost! your score: ' + survivedTime + ' points');
                     player.hp = 10;
                     survivedTime = 0;
+                    }
                 }
-            }
+
+                // if (isCollidingTrafficTraffic) {
+                //     console.log('dtp')
+                // }
         }
 
         if(player.x >= 350){
             player.x = 350;
-        } else if(player.x <= 110){
-            player.x = 110;
+        } else if(player.x <= 100){
+            player.x = 100;
+        } else if(player.y >= HEIGHT-90){
+            player.y = HEIGHT-90;
+        } else if(player.y <= 0){
+            player.y = 0;
         }
         updatePlayerPosition();
         drawEntity(player);
@@ -179,19 +232,19 @@ to do list:
     }
 
     movingBackground = function(){
-    document.getElementById('ctx').style.backgroundPositionY = 8*survivedTime+'px';
-    };
+        document.getElementById('ctx').style.backgroundPositionY = 8*survivedTime+'px';
+    }
     setInterval(movingBackground,5);
 
     counterTimer = setTimeout(function timerForCounterTraffic() {
         randomCounterTrafficGeneration();
-        var timer = 800+Math.random()*2000
+        var timer = 200+Math.random()*1000
         counterTimer = setTimeout(timerForCounterTraffic, timer);
     }, 1000);
 
     followTimer = setTimeout(function timerForFollowTraffic() {
         randomFollowingTrafficGeneration();
-        var timer = 2000+Math.random()*2000
+        var timer = 1500+Math.random()*2000
         followTimer = setTimeout(timerForFollowTraffic, timer);
     }, 1000);
 
@@ -219,13 +272,13 @@ to do list:
 
     updatePlayerPosition = function () {
         if (player.pressingUp)
-            player.y -= 10;
+            player.y -= 5;
         if (player.pressingRight)
             player.x += 5;
         if (player.pressingLeft)
             player.x -= 5;
         if (player.pressingDown)
-            player.y += 10;
+            player.y += 5;
     }
 
     //UNOPTIMIZED YET!!
@@ -243,7 +296,13 @@ to do list:
 
     randomFollowingTrafficGeneration = function () {
         var id = Math.random();
-        var x = WIDTH / 2 + 20+60*Math.random();   //270 - 
+        var x0 = _.random(0,1);
+        if(x0 > 0.5){
+            x = 267;
+        } else{
+            x = 345;
+        }
+        // var x = WIDTH / 2 + 20+60*Math.random();   //270 - 
         var y = -90; //temporary
         var width = 60;
         var height = 90;
