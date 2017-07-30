@@ -1,11 +1,19 @@
 <center>
-    <canvas id="ctx" width="500" height="600" style="border:1px solid #000000;"></canvas>
+    <canvas id="ctx" width="500" height="600" style="border:1px solid #000000;">
+    </canvas>
 </center>
     
 <style>
-
+    #ctx{
+        background-image: url('img/road_with_grass2.jpg');
+        background-repeat: repeat-y;
+        background-size: 100%;
+        position:initial;
+        background-position-y: 0;
+    }
 </style>
 
+<script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
 <script>
     var ctx = document.getElementById("ctx").getContext("2d");
     ctx.font = '20px Arial';
@@ -13,8 +21,7 @@
     const HEIGHT = 600;
     const WIDTH = 500;
     var survivedTime = 0;
-    var randomAppearanceTimer = 0;
-
+    // var timer = '';
 
     var Map = {}
     Map.roadImg = new Image();
@@ -33,6 +40,9 @@
     ImgTraffic.follow = new Image();
     ImgTraffic.follow.src = 'img/followAuto.png';
 
+    ImgTraffic.explosion = new Image();
+    ImgTraffic.explosion.src = 'img/explosion.jpg'
+
     var player = {
         x: 300,
         spdX: 0,
@@ -43,7 +53,7 @@
         height: ImgPlayer.auto.height,
         color: 'green',
         image: ImgPlayer.auto,
-        hp: 10,
+        hp: 100,
         pressingUp: false,
         pressingDown: false,
         pressingLeft: false,
@@ -62,13 +72,13 @@
         var rect1 = {
             x: entity1.x / 2,
             y: entity1.y / 2,
-            width: 25,
+            width: 20,
             height: 45,
         }
         var rect2 = {
             x: entity2.x / 2,
             y: entity2.y / 2,
-            width: 25,
+            width:20,
             height: 45,
         }
         return testCollisionRectRect(rect1, rect2)
@@ -127,25 +137,25 @@
         // ctx.fillRect(WIDTH / 2 - WIDTH / 4, 0, WIDTH / 2, HEIGHT);
         // var roadImg = document.getElementById('road')
         // ctx.drawImage(roadImg, WIDTH/2 - WIDTH/4,0 , WIDTH/2, HEIGHT);
-        ctx.drawImage(Map.grass, 0, 0, WIDTH, HEIGHT);
+        // ctx.drawImage(Map.grass, 0, 0, WIDTH, HEIGHT);
 
-        ctx.drawImage(
-        Map.roadImg,      //src
+        // ctx.drawImage(
+        // Map.roadImg,      //src
 
-        0,    //координаты верхнего левого угла слайса относительно изображения;
-        0,                    // -/-/-
+        // 0,    //координаты верхнего левого угла слайса относительно изображения;
+        // 0,                    // -/-/-
 
-        900,             // размеры слайса
-        HEIGHT,            // -/-/-
+        // 900,             // размеры слайса
+        // HEIGHT,            // -/-/-
 
-        WIDTH/2 - WIDTH/4,                 // координаты верхнего левого угла обрезанного изображения;
-        0,                  // -/-/-
+        // WIDTH/2 - WIDTH/4,                 // координаты верхнего левого угла обрезанного изображения;
+        // 0,                  // -/-/-
 
-        WIDTH/2,            // размеры обрезанного изображения на холсте.
-        HEIGHT,              // -/-/-
+        // WIDTH/2,            // размеры обрезанного изображения на холсте.
+        // HEIGHT,              // -/-/-
 
 
-        );
+        // );
 
         ctx.fillStyle = 'white';
         // ctx.fillRect(WIDTH / 2 + 2, 0, 2, HEIGHT);
@@ -157,7 +167,17 @@
             var isCollidingPlayerTraffic = testCollisionEntity(player, trafficList[key]);
             if (isCollidingPlayerTraffic) {
                 player.hp = player.hp - 1;
-                    delete trafficList[key]
+                    var currentKey = key;
+                    player.x = player.x + _.random(-10,10)*Math.random();
+                    player.spdY = player.spdY + _.random(10,30); 
+                    trafficList[currentKey].spdX += _.random(-20,20);  
+
+
+                    setInterval(function(){                                            
+                    delete trafficList[currentKey];
+                    },
+                    150);                    
+
 
                 // currentTraffic = trafficList[key];
                 // currentTraffic.height = 0;
@@ -170,20 +190,53 @@
             }
         }
 
+        if(player.x >= 350){
+            player.x = 350;
+        } else if(player.x <= 110){
+            player.x = 110;
+        }
         updatePlayerPosition();
         drawEntity(player);
         ctx.fillStyle = 'blue';
         ctx.fillText(player.hp + ' hp', 0, 30);
         ctx.fillText('score: ' + survivedTime, WIDTH - 100, 30);
-        var randomAppearanceTimer = Math.random();
-        if (randomAppearanceTimer < 0.01) {
-            // setInterval(randomCounterTrafficGeneration,1000);
-            randomCounterTrafficGeneration();
-            // randomCounterTrafficGeneration = null;
-        } else if (randomAppearanceTimer > 0.99) {
-            randomFollowingTrafficGeneration()
-        }
+
+        
+        // if (randomAppearanceTimer < 0.01) {
+        //     // setInterval(randomCounterTrafficGeneration,1000);
+        //     randomCounterTrafficGeneration();
+        //     // randomCounterTrafficGeneration = null;
+        // } else if (randomAppearanceTimer > 0.99) {
+        //     randomFollowingTrafficGeneration()
+        // }
+        
+
+
     }
+
+    // randomAppearanceTimer = function(){
+    //     return timer = Math.random();
+    //     console.log(timer);
+    // }
+
+    movingBackground = function(){
+    document.getElementById('ctx').style.backgroundPositionY = 8*survivedTime+'px';
+    };
+    setInterval(movingBackground,5);
+
+    counterTimer = setTimeout(function timerForCounterTraffic() {
+        randomCounterTrafficGeneration();
+        var timer = 800+Math.random()*2000
+        counterTimer = setTimeout(timerForCounterTraffic, timer);
+    }, 1000);
+
+    followTimer = setTimeout(function timerForFollowTraffic() {
+        randomFollowingTrafficGeneration();
+        var timer = 2000+Math.random()*2000
+        followTimer = setTimeout(timerForFollowTraffic, timer);
+    }, 1000);
+
+    // setInterval(randomAppearanceTimer,1000);
 
     document.onkeydown = function (event) {
         if (event.keyCode === 39) //d
@@ -211,9 +264,9 @@
         if (player.pressingUp)
             player.y -= 10;
         if (player.pressingRight)
-            player.x += 20;
+            player.x += 5;
         if (player.pressingLeft)
-            player.x -= 20;
+            player.x -= 5;
         if (player.pressingDown)
             player.y += 10;
     }
@@ -222,7 +275,7 @@
     randomCounterTrafficGeneration = function () {
         var id = Math.random();
         var x = WIDTH / 2 - 70 - 20 * Math.random();
-        var y = 0; //temporary
+        var y = -90; //temporary
         var width = 60;
         var height = 90;
         var image = ImgTraffic.counter;
@@ -233,12 +286,12 @@
 
     randomFollowingTrafficGeneration = function () {
         var id = Math.random();
-        var x = WIDTH / 2 + 30 + 20 * Math.random();
-        var y = 0; //temporary
+        var x = WIDTH / 2 + 20+60*Math.random();   //270 - 
+        var y = -90; //temporary
         var width = 60;
         var height = 90;
         var image = ImgTraffic.follow;
-        var spdY = 5 //+ Math.random()*5;
+        var spdY = 2 //+ Math.random()*5;
         var spdX = 0; //dont turn to sides 
         Traffic(id, x, y, spdX, spdY, width, height, image);
     }
