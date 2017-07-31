@@ -5,7 +5,7 @@
 </div>
 <center>
     <div id="menu">
-       <span class="disclaimer">TO START OR RESUME CURRENT GAME PRESS <img src="img/enter.png"> <br><br>
+        <span class="disclaimer">TO START OR RESUME CURRENT GAME PRESS <img src="img/enter.png"> <br><br>
     TO MOVE THE CAR USE <img src="img/arrows.png"></span>
     </div>
     <div id="gameover" class="hidden">
@@ -24,6 +24,7 @@
         background-image: url('img/background.jpg');
         /* filter: blur(2px); */
     }
+
     #ctx {
         background-image: url('img/road_with_grass2.jpg');
         background-repeat: repeat-y;
@@ -34,20 +35,22 @@
         box-shadow: 1px 0px 46px 8px rgba(0, 0, 0, 0.75);
     }
 
-    #menu, #gameover {
+    #menu,
+    #gameover {
         width: 100%;
         height: 100%;
         background-color: gray;
-        position:absolute;
+        position: absolute;
         opacity: 0.8;
         box-shadow: 1px 0px 46px 8px rgba(0, 0, 0, 0.75), 0 1px 5px #000 inset, 0 1px 0 #444;
         overflow: hidden;
     }
+
     .hidden {
         visibility: hidden;
     }
 
-    .disclaimer{
+    .disclaimer {
         position: absolute;
         font-size: 25px;
         width: 50%;
@@ -55,6 +58,7 @@
         top: 15%;
         left: 25%;
     }
+
     .leftContainer {
         position: fixed;
         width: 200px;
@@ -98,8 +102,6 @@
     .score {
         margin-top: 60px;
     }
-
-
 </style>
 
 <!-- 
@@ -118,6 +120,7 @@ to do list:
     var ctx = document.getElementById("ctx").getContext("2d");
     var menu = document.getElementById("menu");
     var gameover = document.getElementById("gameover");
+    var finishscreen = document.getElementById("finishscreen");
     ctx.font = '20px Arial';
     var statement = 'paused';
 
@@ -329,12 +332,13 @@ to do list:
 
                 if (player.hp <= 0) {
                     console.log('you lost! your score: ' + survivedTime + ' points');
+                    stop();
                     player.hp = 5;
                     player.x = 300;
                     player.y = 470;
                     health.value = 5;
                     survivedTime = 0;
-                    stop();
+                   
                 }
             }
 
@@ -390,7 +394,8 @@ to do list:
                     break;
                 case 'running':
                     stop();
-                default:break;
+                default:
+                    break;
             }
         }
     }
@@ -403,7 +408,7 @@ to do list:
         else if (event.keyCode === 37) //a
             player.pressingLeft = false;
         else if (event.keyCode === 38) // w
-            player.pressingUp = false;      
+            player.pressingUp = false;
     }
 
     updatePlayerPosition = function () {
@@ -452,12 +457,13 @@ to do list:
             delete trafficList[key];
         }
         return startGame = setInterval(update, 20);
-
+        player.xp = 5;
     }
 
 
     stop = function () {
         gameover.classList.remove('hidden');
+        finishscreen.innerHTML = "GAME OVER! YOUR SCORE:<br>"+survivedTime+'<br><br><br>PRESS <img src="img/enter.png"> TO RESTART';
         survivedTime = 0;
         for (var key in trafficList) {
             delete trafficList[key];
