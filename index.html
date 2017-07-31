@@ -1,41 +1,105 @@
-<span class="hp">Car durability:</span>
-<progress id="health" value="5" max="5"></progress>
-<span id="timer" class="score">Score: </span>
+<div class="leftContainer">
+    <span class="hp">Car durability:</span>
+    <progress id="health" value="5" max="5"></progress>
+    <span id="timer" class="score">Score: </span>
+</div>
 <center>
-    <canvas id="ctx" width="500" height="600" style="border:1px solid #000000;">
+    <div id="menu">
+       <span class="disclaimer">TO START OR RESUME CURRENT GAME PRESS <img src="img/enter.png"> <br><br>
+    TO MOVE THE CAR USE <img src="img/arrows.png"></span>
+    </div>
+    <div id="gameover" class="hidden">
+        <span id="finishscreen" class="disclaimer">GAME OVER<br>PRESS<img src="img/enter.png"> TO RESTART</span>
+    </div>
+    <canvas id="ctx" width="500" height="600" style="border:5px solid #000000;">
     </canvas>
 </center>
-    
+
 <style>
     body {
-        background: black;
+        background: #444;
         margin: 0;
         padding: 0;
+        font-family: "Lucida Bright", Georgia, serif;
+        background-image: url('img/background.jpg');
+        /* filter: blur(2px); */
     }
-    #ctx{
+    #ctx {
         background-image: url('img/road_with_grass2.jpg');
         background-repeat: repeat-y;
         background-size: 100%;
-        position:initial;
+        position: initial;
         background-position-y: 0;
+        margin-top: 10px;
+        box-shadow: 1px 0px 46px 8px rgba(0, 0, 0, 0.75);
     }
-    progress{
+
+    #menu, #gameover {
+        width: 100%;
+        height: 100%;
+        background-color: gray;
+        position:absolute;
+        opacity: 0.8;
+        box-shadow: 1px 0px 46px 8px rgba(0, 0, 0, 0.75), 0 1px 5px #000 inset, 0 1px 0 #444;
+        overflow: hidden;
+    }
+    .hidden {
+        visibility: hidden;
+    }
+
+    .disclaimer{
+        position: absolute;
+        font-size: 25px;
+        width: 50%;
+        height: 30%;
+        top: 15%;
+        left: 25%;
+    }
+    .leftContainer {
+        position: fixed;
+        width: 200px;
+        height: 600px;
+    }
+
+    progress {
         position: absolute;
         margin-top: 25px;
         margin-left: 10px;
-        background-color: #eee;
-        border-radius: 2px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+        height: 30px;
+        padding: 5px;
+        width: 170px;
+        background-color: #1a1a1a;
+        border-radius: 5px;
+        box-shadow: 0 1px 5px #000 inset, 0 1px 0 #444;
     }
-    .hp, .score {
+
+    progress::-webkit-progress-bar {
+        background-color: #1a1a1a;
+    }
+
+    progress::-webkit-progress-value {
+        background-color: #34c2e3;
+        background-size: 30px 30px;
+        background-image: -webkit-linear-gradient(top left, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image: -moz-linear-gradient(top left, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image: -o-linear-gradient(top left, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image: linear-gradient(to bottom right, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        animation: animate-stripes 3s linear infinite;
+    }
+
+    .hp,
+    .score {
         position: absolute;
         margin-top: 5px;
         margin-left: 15px;
         color: white;
     }
-    .score{ 
-        margin-top: 45px;
+
+    .score {
+        margin-top: 60px;
     }
+
+
 </style>
 
 <!-- 
@@ -52,33 +116,35 @@ to do list:
 <script src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
 <script>
     var ctx = document.getElementById("ctx").getContext("2d");
+    var menu = document.getElementById("menu");
+    var gameover = document.getElementById("gameover");
     ctx.font = '20px Arial';
-    var started = false;
+    var statement = 'paused';
 
     const HEIGHT = 600;
     const WIDTH = 500;
     var survivedTime = 0;
 
     var Map = {}
-        Map.roadImg = new Image();
-        Map.roadImg.src = 'img/road2.jpg';
-        Map.grass = new Image();
-        Map.grass.src = 'img/grass.jpg';
+    Map.roadImg = new Image();
+    Map.roadImg.src = 'img/road2.jpg';
+    Map.grass = new Image();
+    Map.grass.src = 'img/grass.jpg';
 
     var ImgPlayer = {}
-        ImgPlayer.auto = new Image();
-        ImgPlayer.auto.src = 'img/playerAuto.png';
+    ImgPlayer.auto = new Image();
+    ImgPlayer.auto.src = 'img/playerAuto.png';
 
-        ImgPlayer.repair = new Image();
-        ImgPlayer.repair.src = 'img/repair.png';
+    ImgPlayer.repair = new Image();
+    ImgPlayer.repair.src = 'img/repair.png';
 
-        ImgPlayer.upgrade = new Image();
-        ImgPlayer.upgrade.src = 'img/upgrade.png';
+    ImgPlayer.upgrade = new Image();
+    ImgPlayer.upgrade.src = 'img/upgrade.png';
 
-    
+
     var ImgTraffic = {}
-        ImgTraffic.models = new Image();
-        ImgTraffic.models.src = 'img/autos.png'
+    ImgTraffic.models = new Image();
+    ImgTraffic.models.src = 'img/autos.png'
 
 
     var player = {
@@ -120,30 +186,29 @@ to do list:
         var rect2 = {
             x: entity2.x / 2,
             y: entity2.y / 2,
-            width:20,
+            width: 20,
             height: 45,
         }
         return testCollisionRectRect(rect1, rect2)
     }
 
     drawEntity = function (arg) {
-        ctx.save();     
+        ctx.save();
         //drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
-        if(arg.type === 'player'){
+        if (arg.type === 'player') {
             ctx.drawImage(arg.image, arg.x, arg.y);
-        } 
-        else if (arg.type === 'counter' || arg.type === 'follow'){
-           ctx.drawImage(arg.image,arg.sliceX,arg.sliceY,47.25,85,arg.x,arg.y,49,85);
-        }        
+        } else if (arg.type === 'counter' || arg.type === 'follow') {
+            ctx.drawImage(arg.image, arg.sliceX, arg.sliceY, 47.25, 85, arg.x, arg.y, 49, 85);
+        }
         // 
-        
-        
-                // ctx.drawImage(arg.image,sliceX,sliceY,49,89,arg.x,arg.y,49,89);
-           
-            
-                //ctx.drawImage(arg.image,0,89,49,89,arg.x,arg.y,49,89);
-           
-           
+
+
+        // ctx.drawImage(arg.image,sliceX,sliceY,49,89,arg.x,arg.y,49,89);
+
+
+        //ctx.drawImage(arg.image,0,89,49,89,arg.x,arg.y,49,89);
+
+
 
         // if(arg.type !== 'player' && arg.model > 2){
         //     ctx.drawImage(arg.image,0,0,49,89,arg.x,arg.y,49,89); 
@@ -152,7 +217,7 @@ to do list:
         // }
         ctx.restore();
     }
-    
+
 
     Traffic = function (id, x, y, spdX, spdY, width, height, type, model, color, image, sliceX, sliceY) {
         var traffic = {
@@ -174,28 +239,28 @@ to do list:
         trafficList[id] = traffic;
     }
 
-    Repair = function(id,x,y,spdX,spdY,width,height){
+    Repair = function (id, x, y, spdX, spdY, width, height) {
         var rep = {
-            id:id,
-            x:x,
-            y:y,
-            spdX:spdX,
-            spdY:spdY,
-            width:width,
-            height:height,
+            id: id,
+            x: x,
+            y: y,
+            spdX: spdX,
+            spdY: spdY,
+            width: width,
+            height: height,
         };
         repairList[id] = rep;
     }
 
-    Upgrade = function(id,x,y,spdX,spdY,width,height){
+    Upgrade = function (id, x, y, spdX, spdY, width, height) {
         var up = {
-            id:id,
-            x:x,
-            y:y,
-            spdX:spdX,
-            spdY:spdY,
-            width:width,
-            height:height,
+            id: id,
+            x: x,
+            y: y,
+            spdX: spdX,
+            spdY: spdY,
+            width: width,
+            height: height,
         };
         upgradeList[id] = up;
     }
@@ -230,7 +295,7 @@ to do list:
     // }
     // }
 
-    
+
     update = function () {
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
         survivedTime++;
@@ -238,63 +303,64 @@ to do list:
         for (var key in trafficList) {
             updateEntity(trafficList[key]);
             var currentKey = key;
-            trafficList[currentKey].spdX += _.random(-0.01,0.01);
-                if(trafficList[currentKey].x >= 350){
-                    trafficList[currentKey].x = 350;
-                } else if (trafficList[currentKey].x <= 100){
-                    trafficList[currentKey].x = 100;
-                }
+            trafficList[currentKey].spdX += _.random(-0.01, 0.01);
+            if (trafficList[currentKey].x >= 350) {
+                trafficList[currentKey].x = 350;
+            } else if (trafficList[currentKey].x <= 100) {
+                trafficList[currentKey].x = 100;
+            }
 
             var isCollidingPlayerTraffic = testCollisionEntity(player, trafficList[key]);
             // var isCollidingTrafficTraffic = testCollisionEntity(trafficList[key]);
-           
-                if (isCollidingPlayerTraffic) {
-                    player.hp = player.hp - 1;
-                    health.value -= 1;
-                    var currentKey1 = key;
 
-                    player.x = player.x + _.random(-15,15)*Math.random();
-                    player.y = player.y + _.random(10,15); 
-                    trafficList[currentKey].spdX += _.random(-5,5); 
-                    trafficList[currentKey].spdY += _.random(-10,-5);
-                         
+            if (isCollidingPlayerTraffic) {
+                player.hp = player.hp - 1;
+                health.value -= 1;
+                var currentKey1 = key;
 
-                    setInterval(function(){                                            
-                    delete trafficList[currentKey1];
+                player.x = player.x + _.random(-15, 15) * Math.random();
+                player.y = player.y + _.random(10, 15);
+                trafficList[currentKey].spdX += _.random(-5, 5);
+                trafficList[currentKey].spdY += _.random(-10, -5);
+                setInterval(function () {
+                        delete trafficList[currentKey1];
                     },
-                    120);                    
+                    120);
 
                 if (player.hp <= 0) {
                     console.log('you lost! your score: ' + survivedTime + ' points');
                     player.hp = 5;
+                    player.x = 300;
+                    player.y = 470;
                     health.value = 5;
                     survivedTime = 0;
-                    }
+                    stop();
                 }
+            }
 
-                // if (isCollidingTrafficTraffic) {
-                //     console.log('dtp')
-                // }
+            // if (isCollidingTrafficTraffic) {
+            //     console.log('dtp')
+            // }
         }
 
-        if(player.x > 350){
+        if (player.x > 350) {
             player.x = 350;
-        } else if(player.x < 100){
+        } else if (player.x < 100) {
             player.x = 100;
-        } else if(player.y > HEIGHT-90){
-            player.y = HEIGHT-90;
-        } else if(player.y <= 0){
+        } else if (player.y > HEIGHT - 90) {
+            player.y = HEIGHT - 90;
+        } else if (player.y <= 0) {
             player.y = 0;
         }
         updatePlayerPosition();
         drawEntity(player);
-        document.getElementById('timer').innerText = 'Score: '+ survivedTime;
+        document.getElementById('timer').innerText = 'Score: ' + survivedTime;
     }
-    
-    movingBackground = function(){
-        document.getElementById('ctx').style.backgroundPositionY = 8*survivedTime+'px';
+
+    movingBackground = function () {
+        document.getElementById('ctx').style.backgroundPositionY = 8 * survivedTime + 'px';
     }
-    setInterval(movingBackground,5);
+    setInterval(movingBackground, 5);
 
     // counterTimer = setTimeout(function timerForCounterTraffic() {
     //     randomCounterTrafficGeneration();
@@ -317,11 +383,18 @@ to do list:
             player.pressingLeft = true;
         else if (event.keyCode === 38) // w
             player.pressingUp = true;
-        else if (event.keyCode === 80)  {
-                
+        else if (event.keyCode === 13) {
+            switch (statement) {
+                case 'paused':
+                    start();
+                    break;
+                case 'running':
+                    stop();
+                default:break;
+            }
         }
     }
-    
+
     document.onkeyup = function (event) {
         if (event.keyCode === 39) //d
             player.pressingRight = false;
@@ -330,7 +403,7 @@ to do list:
         else if (event.keyCode === 37) //a
             player.pressingLeft = false;
         else if (event.keyCode === 38) // w
-            player.pressingUp = false;
+            player.pressingUp = false;      
     }
 
     updatePlayerPosition = function () {
@@ -338,107 +411,108 @@ to do list:
             player.y -= 5;
         if (player.pressingRight)
             player.x += 5;
-            player.deg += 5;
+        player.deg += 5;
         if (player.pressingLeft)
             player.x -= 5;
-            player.deg += -5;
+        player.deg += -5;
         if (player.pressingDown)
             player.y += 5;
     }
 
     // const startGame = setInterval(update,20);
-    startCounterTimer = function(){
+    startCounterTimer = function () {
         for (var key in trafficList) {
             delete trafficList[key];
         }
-            counterTimer = setTimeout(function timerForCounterTraffic() {
+        counterTimer = setTimeout(function timerForCounterTraffic() {
             randomCounterTrafficGeneration();
-            var timer = 200+Math.random()*1000
+            var timer = 200 + Math.random() * 1000
             return counterTimer = setTimeout(timerForCounterTraffic, timer);
-            }, 1000);
+        }, 1000);
 
-    startFollowTimer = function(){
-        for (var key in trafficList) {
-            delete trafficList[key];
-        }
-            followTimer = setTimeout(function timerForFollowTraffic() {
-            randomFollowingTrafficGeneration();
-            var timer = 1500+Math.random()*2000
-            return followTimer = setTimeout(timerForFollowTraffic, timer);
-            }, 1000);
-    }
-
-    }
-    start = function(){
-            startCounterTimer();
-            startFollowTimer();
+        startFollowTimer = function () {
             for (var key in trafficList) {
                 delete trafficList[key];
             }
-            return startGame = setInterval(update,20);
-            
-    }
-    
+            followTimer = setTimeout(function timerForFollowTraffic() {
+                randomFollowingTrafficGeneration();
+                var timer = 1500 + Math.random() * 2000
+                return followTimer = setTimeout(timerForFollowTraffic, timer);
+            }, 1000);
+        }
 
-    stop = function(){
+    }
+    start = function () {
+        menu.classList.add('hidden');
+        gameover.classList.add('hidden');
+        startCounterTimer();
+        startFollowTimer();
+        statement = 'running';
         for (var key in trafficList) {
             delete trafficList[key];
-            }
+        }
+        return startGame = setInterval(update, 20);
+
+    }
+
+
+    stop = function () {
+        gameover.classList.remove('hidden');
+        survivedTime = 0;
+        for (var key in trafficList) {
+            delete trafficList[key];
+        }
+        player.hp = 5;
+        player.x = 300;
+        player.y = 470;
+        statement = 'paused';
         clearInterval(startGame);
         clearTimeout(counterTimer);
         clearTimeout(followTimer);
-        // clearTimeout(followTimer);
-        
     }
-
-   
-
-
-    
 
     //UNOPTIMIZED YET!!
     randomCounterTrafficGeneration = function () {
         var id = Math.random();
-        var x0 = _.random(0,1);
-            if(x0 > 0.5){
-                x = 100;
-            } else {
-                x = 181;
-            }
+        var x0 = _.random(0, 1);
+        if (x0 > 0.5) {
+            x = 100;
+        } else {
+            x = 181;
+        }
         var y = -90; //temporary
         var width = 60;
         var height = 90;
         var type = 'counter';
-        var model = _.random(1,3);
-        var color = _.random(1,4)
+        var model = _.random(1, 3);
+        var color = _.random(1, 4)
         var image = ImgTraffic.models;
         var spdY = 15 //+ Math.random()*10;
         var spdX = 0; //dont turn to sides 
-        var sliceX = _.random(1,12)*47.25;
+        var sliceX = _.random(1, 12) * 47.25;
         var sliceY = 0;
         Traffic(id, x, y, spdX, spdY, width, height, type, model, color, image, sliceX, sliceY);
     }
 
     randomFollowingTrafficGeneration = function () {
         var id = Math.random();
-        var x0 = _.random(0,1);
-        if(x0 > 0.5){
+        var x0 = _.random(0, 1);
+        if (x0 > 0.5) {
             x = 267;
-        } else{
+        } else {
             x = 345;
         }
         var y = -90; //temporary
         var width = 60;
         var height = 90;
         var type = 'follow';
-        var model = _.random(1,3);
-        var color = _.random(1,4)
+        var model = _.random(1, 3);
+        var color = _.random(1, 4)
         var image = ImgTraffic.models;
         var spdY = 2 //+ Math.random()*5;
-        var spdX = _.random(-0.1,0.1); //dont turn to sides 
-        var sliceX = _.random(1,12)*47.25;
+        var spdX = _.random(-0.1, 0.1); //dont turn to sides 
+        var sliceX = _.random(1, 12) * 47.25;
         var sliceY = 85;
         Traffic(id, x, y, spdX, spdY, width, height, type, model, color, image, sliceX, sliceY);
     }
-
 </script>
