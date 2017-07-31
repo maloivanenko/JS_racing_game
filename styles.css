@@ -1,0 +1,90 @@
+body {
+        background: #444;
+        margin: 0;
+        padding: 0;
+        font-family: "Lucida Bright", Georgia, serif;
+        background-image: url('img/background.jpg');
+        /* filter: blur(2px); */
+    }
+
+    #ctx {
+        background-image: url('img/road_with_grass2.jpg');
+        background-repeat: repeat-y;
+        background-size: 100%;
+        position: initial;
+        background-position-y: 0;
+        margin-top: 10px;
+        box-shadow: 1px 0px 46px 8px rgba(0, 0, 0, 0.75);
+    }
+
+    #menu,
+    #gameover {
+        width: 100%;
+        height: 100%;
+        background-color: gray;
+        position: absolute;
+        opacity: 0.8;
+        box-shadow: 1px 0px 46px 8px rgba(0, 0, 0, 0.75), 0 1px 5px #000 inset, 0 1px 0 #444;
+        overflow: hidden;
+    }
+
+    .hidden {
+        visibility: hidden;
+    }
+
+    .disclaimer {
+        position: absolute;
+        font-size: 25px;
+        width: 50%;
+        height: 30%;
+        top: 15%;
+        left: 25%;
+    }
+
+    .leftContainer {
+        position: fixed;
+        width: 200px;
+        height: 600px;
+    }
+
+    progress {
+        position: absolute;
+        margin-top: 25px;
+        margin-left: 10px;
+        height: 30px;
+        padding: 5px;
+        width: 170px;
+        background-color: #1a1a1a;
+        border-radius: 5px;
+        box-shadow: 0 1px 5px #000 inset, 0 1px 0 #444;
+    }
+
+    progress::-webkit-progress-bar {
+        background-color: #1a1a1a;
+    }
+
+    progress::-webkit-progress-value {
+        background-color: #34c2e3;
+        background-size: 30px 30px;
+        background-image: -webkit-linear-gradient(top left, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image: -moz-linear-gradient(top left, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image: -o-linear-gradient(top left, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image: linear-gradient(to bottom right, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        animation: animate-stripes 3s linear infinite;
+    }
+
+    .hp,
+    .score,
+    .record {
+        position: absolute;
+        margin-top: 5px;
+        margin-left: 15px;
+        color: white;
+    }
+
+    .score {
+        margin-top: 60px;
+    }
+    .record {
+        margin-top: 80px;
+    }
