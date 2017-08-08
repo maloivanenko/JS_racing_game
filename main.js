@@ -1,7 +1,8 @@
-function ready(){
+// function ready(){
 
 var ctx = document.getElementById("ctx").getContext("2d");
 var menu = document.getElementById("menu");
+var bonus = document.getElementById("bonus");
 var gameover = document.getElementById("gameover");
 var finishscreen = document.getElementById("finishscreen");
 ctx.font = '20px Arial';
@@ -10,6 +11,7 @@ var statement = 'paused';
 const HEIGHT = 600;
 const WIDTH = 500;
 var survivedTime = 0;
+var backgroundTimer = 0;
 
 var ImgPlayer = {};
     ImgPlayer.auto = new Image();
@@ -44,7 +46,6 @@ var health = document.getElementById("health");
 
 var trafficList = {};
 var repairList = {};
-var upgradeList = {};
 
 getDistanceBetweenEntity = function (entity1, entity2) {
     var vx = entity1.x - entity2.x;
@@ -114,19 +115,6 @@ Repair = function (id, x, y, spdX, spdY, width, height, image) {
     repairList[id] = rep;
 };
 
-Upgrade = function (id, x, y, spdX, spdY, width, height) {
-    var up = {
-        id: id,
-        x: x,
-        y: y,
-        spdX: spdX,
-        spdY: spdY,
-        width: width,
-        height: height,
-    };
-    upgradeList[id] = up;
-};
-
 updateEntity = function (arg) {
     updateEntityPosition(arg);
     drawEntity(arg);
@@ -150,7 +138,7 @@ testCollisionRectRect = function (rect1, rect2) {
 
 update = function () {
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
-    survivedTime++;
+    
 
     for (var key in trafficList) {
         updateEntity(trafficList[key]);
@@ -187,7 +175,6 @@ update = function () {
                 player.y = 470;
                 health.value = 5;
                 survivedTime = 0;
-
             }
         }
     }
@@ -219,15 +206,29 @@ update = function () {
     }
     updatePlayerPosition();
     drawEntity(player);
+    backgroundTimer++;
+
+    if(player.x < 210) {
+        survivedTime = survivedTime+3;
+        bonus.classList.remove('hidden');
+        // document.getElementById('timer').innerText = '3x Score: ' + survivedTime;
+    } 
+    else {
+        survivedTime++;
+        bonus.classList.add('hidden')
+        // document.getElementById('timer').innerText = 'Score: ' + survivedTime;
+    };
+    
     document.getElementById('timer').innerText = 'Score: ' + survivedTime;
 };
 
-movingBackground = function () {
-    document.getElementById('ctx').style.backgroundPositionY = 8 * survivedTime + 'px';
+movingBackground = function (time) {
+    document.getElementById('ctx').style.backgroundPositionY = 8 * backgroundTimer + 'px';
 };
 setInterval(movingBackground, 5);
 
 document.onkeydown = function (event) {
+    event.preventDefault();
     if (event.keyCode === 39) //d
         player.pressingRight = true;
     else if (event.keyCode === 40) //s
@@ -253,6 +254,7 @@ document.onkeydown = function (event) {
 };
 
 document.onkeyup = function (event) {
+    event.preventDefault();
     if (event.keyCode === 39) //d
         player.pressingRight = false;
     else if (event.keyCode === 40) //s
@@ -386,5 +388,6 @@ randomRepairGeneration = function () {
     var image = ImgPlayer.repair;
     Repair(id, x, y, spdX, spdY, width, height, image);
 };
-}
-document.addEventListener("DOMContentLoaded", ready);
+
+// }
+// document.addEventListener("DOMContentLoaded", ready);
