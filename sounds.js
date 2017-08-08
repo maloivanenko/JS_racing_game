@@ -25,7 +25,7 @@ var pickupRepair = new Howl({
 var horn1 = new Howl({
     src: ['snd/horn1.mp3'],
     autoplay: false,
-    volume: 0.08,
+    volume: 0.2,
     loop: false,
 });
 

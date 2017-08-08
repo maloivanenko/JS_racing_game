@@ -4,6 +4,7 @@ body {
         padding: 0;
         font-family: "Lucida Bright", Georgia, serif;
         background-image: url('img/background.jpg');
+	overflow-y: hidden;
         /* filter: blur(2px); */
     }
 

@@ -34,7 +34,6 @@ var player = {
     type: 'player',
     model: 'default',
     hp: 5,
-    deg: 10,
     pressingUp: false,
     pressingDown: false,
     pressingLeft: false,
@@ -248,7 +247,7 @@ document.onkeydown = function (event) {
             default:
                 break;
         }
-    } else if (event.keyCode === 72 || statement === 'running') {
+    } else if (event.keyCode === 72 && statement === 'running') {
         horn1.play();
     }
 };
@@ -262,6 +261,9 @@ document.onkeyup = function (event) {
         player.pressingLeft = false;
     else if (event.keyCode === 38) // w
         player.pressingUp = false;
+    else if(event.keyCode === 72 && statement === 'running') {
+        horn1.stop();
+    }
 };
 
 updatePlayerPosition = function () {
@@ -269,38 +271,29 @@ updatePlayerPosition = function () {
         player.y -= 5;
     if (player.pressingRight)
         player.x += 5;
-    player.deg += 5;
     if (player.pressingLeft)
         player.x -= 5;
-    player.deg += -5;
     if (player.pressingDown)
         player.y += 5;
 };
 
 startCounterTimer = function () {
-    for (var key in trafficList) {
-        delete trafficList[key];
-    }
     counterTimer = setTimeout(function timerForCounterTraffic() {
-        randomCounterTrafficGeneration();
+        randomTrafficGeneration(100,181,'counter',15,0);
         var timer = 200 + Math.random() * 1000;
         return counterTimer = setTimeout(timerForCounterTraffic, timer);
     }, 1000);
 };
+
 startFollowTimer = function () {
-    for (var key in trafficList) {
-        delete trafficList[key];
-    }
     followTimer = setTimeout(function timerForFollowTraffic() {
-        randomFollowingTrafficGeneration();
+        randomTrafficGeneration(267,345,'follow',2,85);
         var timer = 1500 + Math.random() * 2000;
         return followTimer = setTimeout(timerForFollowTraffic, timer);
     }, 1000);
 };
+
 startRepairTimer = function () {
-    for (var key in repairList) {
-        delete repairList[key];
-    }
     repairTimer = setTimeout(function timerForRepair() {
         randomRepairGeneration();
         var timer = 5000 + Math.random() * 5000;
@@ -317,6 +310,9 @@ start = function () {
     gameover.classList.add('hidden');
     for (var key in trafficList) {
         delete trafficList[key];
+    }
+    for(var key in repairList){
+        delete repairList[key];
     }
     soundtrack.volume = 0.5;
     engine.play();
@@ -357,47 +353,25 @@ stop = function () {
 };
 
 //UNOPTIMIZED YET!!
-randomCounterTrafficGeneration = function () {
+randomTrafficGeneration = function(xMin,xMax,type,spdY,sliceY){
     var id = Math.random();
     var x0 = _.random(0, 1);
     if (x0 > 0.5) {
-        x = 100;
+        x = xMin;
     } else {
-        x = 181;
+        x = xMax;
     }
     var y = -90;
     var width = 60;
     var height = 90;
-    var type = 'counter';
+    var type = type;
     var model = _.random(1, 3);
     var color = _.random(1, 4);
     var image = ImgTraffic.models;
-    var spdY = 15;
-    var spdX = 0; //dont turn to sides 
-    var sliceX = _.random(0, 11) * 47.25;
-    var sliceY = 0;
-    Traffic(id, x, y, spdX, spdY, width, height, type, model, color, image, sliceX, sliceY);
-};
-
-randomFollowingTrafficGeneration = function () {
-    var id = Math.random();
-    var x0 = _.random(0, 1);
-    if (x0 > 0.5) {
-        x = 267;
-    } else {
-        x = 345;
-    }
-    var y = -90; //temporary
-    var width = 60;
-    var height = 90;
-    var type = 'follow';
-    var model = _.random(1, 3);
-    var color = _.random(1, 4);
-    var image = ImgTraffic.models;
-    var spdY = 2; //+ Math.random()*5;
+    var spdY = spdY;
     var spdX = _.random(-0.1, 0.1); //dont turn to sides 
     var sliceX = _.random(0, 11) * 47.25;
-    var sliceY = 85;
+    var sliceY = sliceY;
     Traffic(id, x, y, spdX, spdY, width, height, type, model, color, image, sliceX, sliceY);
 };
 
