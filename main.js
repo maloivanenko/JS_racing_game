@@ -1,3 +1,5 @@
+function ready(){
+
 var ctx = document.getElementById("ctx").getContext("2d");
 var menu = document.getElementById("menu");
 var gameover = document.getElementById("gameover");
@@ -38,48 +40,8 @@ var player = {
     pressingLeft: false,
     pressingRight: false,
 };
-let health = document.getElementById("health");
-var soundtrack = new Howl({
-    src: ['snd/random-race.mp3'],
-    autoplay: true,
-    volume: 0.2,
-    loop: true,
-});
-var engine = new Howl({
-    src: ['snd/engine2.wav'],
-    autoplay: false,
-    volume: 0.07,
-    loop: true,
-});
-var explode = new Howl({
-    src: ['snd/crash.mp3'],
-    autoplay: false,
-    volume: 0.09,
-    loop: false,
-});
-var pickupRepair = new Howl({
-    src: ['snd/spell2.wav'],
-    autoplay: false,
-    volume: 0.4,
-    loop: false,
-});
-var horn1 = new Howl({
-    src: ['snd/horn1.mp3'],
-    autoplay: false,
-    volume: 0.08,
-    loop: false,
-});
 
-CreateSound = function(sound,src,autoplay,volume,loop){
-    var sound = new Howl({
-        src: src,
-        autoplay: autoplay,
-        volume: volume,
-        loop: loop,
-    });
-};
-
-CreateSound(pickupRepair,['snd/spell2.wav'],false,0.4,false);
+var health = document.getElementById("health");
 
 var trafficList = {};
 var repairList = {};
@@ -89,7 +51,7 @@ getDistanceBetweenEntity = function (entity1, entity2) {
     var vx = entity1.x - entity2.x;
     var vy = entity1.y - entity2.y;
     return Math.sqrt(vx * vx + vy * vy);
-}
+};
 
 testCollisionEntity = function (entity1, entity2) {
     var rect1 = {
@@ -104,7 +66,7 @@ testCollisionEntity = function (entity1, entity2) {
         width: 20,
         height: 45,
     };
-    return testCollisionRectRect(rect1, rect2)
+    return testCollisionRectRect(rect1, rect2);
 };
 
 drawEntity = function (arg) {
@@ -117,7 +79,6 @@ drawEntity = function (arg) {
     }
     ctx.restore();
 };
-
 
 Traffic = function (id, x, y, spdX, spdY, width, height, type, model, color, image, sliceX, sliceY) {
     var traffic = {
@@ -283,6 +244,7 @@ document.onkeydown = function (event) {
                 break;
             case 'running':
                 stop();
+                break;
             default:
                 break;
         }
@@ -324,28 +286,26 @@ startCounterTimer = function () {
         var timer = 200 + Math.random() * 1000;
         return counterTimer = setTimeout(timerForCounterTraffic, timer);
     }, 1000);
-
-    startFollowTimer = function () {
-        for (var key in trafficList) {
-            delete trafficList[key];
-        }
-        followTimer = setTimeout(function timerForFollowTraffic() {
-            randomFollowingTrafficGeneration();
-            var timer = 1500 + Math.random() * 2000;
-            return followTimer = setTimeout(timerForFollowTraffic, timer);
-        }, 1000);
-    };
-    startRepairTimer = function () {
-        for (var key in repairList) {
-            delete repairList[key];
-        }
-        repairTimer = setTimeout(function timerForRepair() {
-            randomRepairGeneration();
-            var timer = 5000 + Math.random() * 5000;
-            return repairTimer = setTimeout(timerForRepair, timer);
-        }, 5000);
-    };
-
+};
+startFollowTimer = function () {
+    for (var key in trafficList) {
+        delete trafficList[key];
+    }
+    followTimer = setTimeout(function timerForFollowTraffic() {
+        randomFollowingTrafficGeneration();
+        var timer = 1500 + Math.random() * 2000;
+        return followTimer = setTimeout(timerForFollowTraffic, timer);
+    }, 1000);
+};
+startRepairTimer = function () {
+    for (var key in repairList) {
+        delete repairList[key];
+    }
+    repairTimer = setTimeout(function timerForRepair() {
+        randomRepairGeneration();
+        var timer = 5000 + Math.random() * 5000;
+        return repairTimer = setTimeout(timerForRepair, timer);
+    }, 5000);
 };
 
 start = function () {
@@ -365,10 +325,12 @@ start = function () {
     startFollowTimer();
     startRepairTimer();
     statement = 'running';
-    return startGame = setInterval(update, 20);
     player.xp = 5;
+    health.value = 5;
     player.x = 300;
     player.y = 470;
+    return startGame = setInterval(update, 18);
+
 };
 
 stop = function () {
@@ -450,3 +412,5 @@ randomRepairGeneration = function () {
     var image = ImgPlayer.repair;
     Repair(id, x, y, spdX, spdY, width, height, image);
 };
+}
+document.addEventListener("DOMContentLoaded", ready);
