@@ -1,0 +1,13 @@
+	<xs:element name="AccountingArea" type="AccountingAreaType"/>
+	<xs:element name="AdditionalInformation" type="AdditionalInformationType"/>
+	<xs:element name="Address" type="AddressType"/>
+	<xs:element name="AddressExtension" type="xs:string"/>
+	<xs:element name="AlternativeQuantity" type="UnitType"/>
+	<xs:element name="Amount" type="Decimal2Type"/>
+	<xs:element name="ArticleNumber" type="ArticleNumberType"/>
+	<xs:element name="BankAccountNr" type="xs:string"/>
+	<xs:element name="BankAccountOwner" type="BankAccountOwnerType"/>
+	<xs:element name="BankCode" type="BankCodeCType"/>
+	
+
+<BankCode>dawd</BankCode>
